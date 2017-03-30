@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Channels</title>
+  <script type="text/javascript"">
+var STAN={compile:function(_template_){for(var ms,result=_template_.toString().replace(/function\s+([\d\w_]+)\s*\(\s*\)\s*{([\S\s]+)}/,'function compiled_$1(context,r){\n	r=r||"";\n$2\n	return r\n}').replace(/(\w+)(?:\[(['"]?[^\]]*?['"]?)\])?\.(e|b)\s*[\n;}]/g,function(a,b,c,d){return"r+='<"+("b"==d?"":"/")+b+" '+("+(c||'""')+")+'>';"}).replace(/(\w+)(?:\[(['"]?[^\]]*?['"]?)\])?\.(.+)\.(\w+)\s*[\n;}]/g,function(a,b,c,d,e){return b==e?"r+='<"+b+" '+("+(c||'""')+")+'>'+("+d+")+'</"+e+">';":a}).replace(/([\n;{]\s*)(\w+)(\s*[\n;}])/g,"$1r+='<$2/>'$3;");ms=result.match(/partial\([_\w\d\.]+/g);)for(var i=0;i<ms.length;i++){var tn=ms[i].replace("partial(","");result=result.replace(tn,"("+STAN.compile(eval(tn))+")")}return result},run:function(result,context,escape){function partial(a,b){var c=context;context=b,a(b,""),context=c}var r="",raw=function(a){return r+=a,a};return escape!==!1&&(context=JSON.parse(JSON.stringify(context).replace(/</g,"&lt;").replace(/&/g,"&amp;").replace(/>/g,"&gt;"))),eval("("+result.replace(/context,r/g,"")+")()"),r}};try{exports.STAN=STAN}catch(e){}
+  </script>
+</head>
+<body>
+<script>
+var data = [];
+var dataReq = "<%-channelsNames%>".split(',');
+for (var i=0;i < dataReq.length; i++){
+	data[data.length] = {"name": dataReq[i]};
+}
+
+function _template(){ //main template
+    h1['class="head"'].raw('List of channels').h1;
+    for (var i = 0; i < context.length; i++) {
+        partial(_item, context[i]);
+    }
+	input[args({id:'email'})].raw("").input;
+    p;
+    button[args({id:'btnsubmit'})].raw("Подписаться").button; 
+}
+
+function _item(){ 
+	b[args({style: 'color: blue', class: 'test'})].raw("Name:").b;
+    div.context.name.div;
+    input[args({type: 'checkbox'})].raw("").input;
+    hr;
+}
+
+function args(obj){ 
+	var result = '';
+	for (var key in obj) {
+		if (obj.hasOwnProperty(key)) {
+			result += key + '="' + obj[key] + '" ';
+		}
+	}
+	return result;
+}
+
+document.body.innerHTML = STAN.run(STAN.compile(_template), data);
+document.getElementById('btnsubmit').onclick = postCheckedChannels();
+
+function postCheckedChannels(){
+	
+}
+</script>
+</body>
+</html>
